@@ -11,37 +11,45 @@ const tooted: Toode[] = [
     new Toode(5, "Vitamin well", 2.5, true)
 ];
 
+
 router.get("/tooted", (req: Request, res: Response) => {
-    res.send(tooted)
+  res.send(tooted)
 });
 
-router.get("/kustuta-toode/:index", (req: Request, res: Response) => {
-    tooted.splice(Number(req.params.index), 1)
-    res.send(tooted)
+router.delete("/kustuta-toode/:index", (req: Request, res: Response) => {
+  if (/^[0-9]+$/.test(req.params.index)) {
+    tooted.splice(Number(req.params.index),1)
+  }
+  res.send(tooted)
 });
 
-router.get("/kustuta-toode-variant2/:index", (req: Request, res: Response) => {
-    tooted.splice(Number(req.params.index), 1)
-    res.send("Toode kustutatud!")
-});
+router.delete("/kustuta-toode-variant2/:index", (req: Request, res: Response) => {
+    if (/^[0-9]+$/.test(req.params.index)) {
+      tooted.splice(Number(req.params.index),1);
+      res.send("Toode kustutatud!");
+    } else {
+      res.send("Toode kustutamine ei õnnestunud, sisesta number!");
+    }
+  });
 
-router.get("/lisa-toode/:id/:nimi/:hind/:aktiivne", (req: Request, res: Response) => {
-    tooted.push(
-        new Toode(
-            Number(req.params.id),
-            req.params.nimi,
-            Number(req.params.hind),
-            req.params.aktiivne === "true")
-    )
-    res.send(tooted)
-});
-
-router.get("/hind-dollaritesse/:kurss", (req: Request, res: Response) => {
-    for (let index = 0; index < tooted.length; index++) {
-        tooted[index].price = tooted[index].price * Number(req.params.kurss);
+  router.post("/lisa-toode", (req: Request, res: Response) => {
+    if (/^[0-9]+$/.test(req.body.id) && /^[0-9]+$/.test(req.body.price)) {
+      tooted.push(
+        new Toode(req.body.id, req.body.name, req.body.price, req.body.isActive)
+        )
     }
     res.send(tooted)
+  });
+
+router.patch("/hind-dollaritesse/:kurss", (req: Request, res: Response) => {
+  if (/^[0-9]+$/.test(req.params.kurss)) {
+    for (let index = 0; index < tooted.length; index++) {
+      tooted[index].price = tooted[index].price * Number(req.params.kurss);
+    }
+  }
+  res.send(tooted)
 });
+
 router.get("/kustuta-tooted", (req: Request, res: Response) => {
     tooted.length = 0;
     res.send("Kõik tooted kustutatud!");
